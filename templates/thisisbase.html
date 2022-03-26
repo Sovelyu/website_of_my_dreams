@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <link href="https://fonts.googleapis.com/css?family=Oranienbaum&display=swap" rel="stylesheet" />
+      <link href="{url_for('css', filename='main.css')}" type="text/css" rel="stylesheet" />
+      <title>Главная</title>
+      <style>
+      #center {text-align: center;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;}
+      #button {text-align: right;
+        font-size: 20px;
+        color: #2A084D;
+        font: Oranienbaum;
+      }
+      #mom
+    {
+        display: table;
+        width: 500px;
+    }
+    #child {
+      display: table-cell;
+    }
+      #childinner {text-align: right;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;
+        margin-left: 300px;
+      }
+      </style>
+    </head>
+    <body>
+    <style>
+    body {
+      background-image: url("static/images/backgr.png")
+    }
+    </style>
+      <button type="submit" id="button" onclick="obsidian()">Регистрация/Вход</button>
+      <div class="mom">
+      <div id="child">
+        <div id="childinner">КАМЕННЫЙ</div>
+      </div>
+      <div id="child">
+        <img id="childinner" src="/static/images/logo.png" alt="здесь должна была быть картинка, но не нашлась">
+      </div>
+      <div id="child">
+        <div id="childinner">МИР</div>
+      </div>
+      </div>
+      <main role="main" class="container">
+        {% block content %}{% endblock %}
+      </main>
+    </body>
+  </html>
