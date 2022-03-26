@@ -9,7 +9,7 @@ def page():
     elif request.method == 'POST':
         return obsidian()
 
-#проверяю гитhаб в атоме
+
 @app.route('/obsidian')
 def obsidian():
     return '''<!doctype html>
