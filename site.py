@@ -9,6 +9,17 @@ def page():
     elif request.method == 'POST':
         return obsidian()
 
+# эта страница с ассортиментом камней
+@app.route('/assor', methods=['POST', 'GET'])
+def assor():
+    con = sqlite3.connect('imag.sqlite')
+    cur = con.cursor()
+    result = cur.execute("""SELECT name, img FROM img WHERE id > 0""").fetchall()
+    sp = []
+    for y in result:
+        sp.append([y[0], y[1]])
+    return render_template('index1.html', sp=sp)
+
 
 @app.route('/obsidian')
 def obsidian():
