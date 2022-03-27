@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <link href="https://fonts.googleapis.com/css?family=Oranienbaum&display=swap" rel="stylesheet" />
+      <title>Регистрация</title>
+      <style>
+        #text {text-align: left;
+          font-size: 30px;
+          color: #2A084D;
+          font: Oranienbaum;}
+      #mom {display: table;
+      width: 500px;}
+      #child {display: table-cell;}
+      #childinner {text-align: right;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;
+        padding-left: 300px;
+        padding-bottom: 20px;}
+      #childinnerr {margin-left: 300px;}
+      </style>
+    </head>
+    <body>
+      <style>
+      body {
+        background-image: url("static/images/backgr.png")
+      }
+      </style>
+        <div class="mom">
+        <div id="child">
+          <div id="childinner">КАМЕННЫЙ</div>
+        </div>
+        <div id="child">
+          <img id="childinnerr" src="/static/images/logo.png" alt="здесь должна была быть картинка, но не нашлась">
+        </div>
+        <div id="child">
+          <div id="childinner">МИР</div>
+        </div>
+        </div>
+        <form>
+          <div id="text">Регистрация</div>
+          <table> <tr> <td id="text"> Введите Email: </td> <td> <input type=”text” placeholder="email" email=””> </td> </tr>
+             <tr> <td id="text"> Введите пароль: </td> <td> <input type="password" placeholder="Пароль" name="pwd"> </td> </tr>
+             <tr> <td id="text"> Подтвердите пароль: </td> <td> <input type="password" placeholder="Пароль" pname="pwd"> </td> </tr>
+             <tr><td><input type="checkbox" name="podpiska" id="text" value="Y">Как насчет получать наши нереальные рассылки<br></td></tr>
+           </table>
+        </form>
+    </body>
+  </html>
