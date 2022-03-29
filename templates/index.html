@@ -21,13 +21,64 @@
     #kid {
       margin-left: 270px;
     }
-    #buttton {text-align: right;
-      position: absolute;
-      font-size: 40px;
-      color: #2A084D;
-      font: Oranienbaum;
-      bottom: -780px;
-    margin-left: -390px;}
+    .custom-btn {
+  width: 130px;
+  height: 40px;
+  color: #2A084D;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  outline: none;
+  bottom: 130px;
+  margin-left: -405px;}
+  .btn-5 {
+    font-size: 40px;
+    font: Oranienbaum;
+  width: 260px;
+  height: 80px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+  background: rgb(255,255, 255, 1);
+  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(188,203, 209, 1) 100%);
+  }
+  .btn-5:hover {
+    color: #ffffff;
+    background: transparent;
+     box-shadow:none;
+  }
+  .btn-5:before,
+  .btn-5:after{
+    content:'';
+    position:absolute;
+    top:0;
+    right:0;
+    height:2px;
+    width:0;
+    background: #ffffff;
+    box-shadow:
+     -1px -1px 5px 0px #fff,
+     7px 7px 20px 0px #0003,
+     4px 4px 5px 0px #0002;
+    transition:400ms ease all;
+  }
+  .btn-5:after{
+    right:inherit;
+    top:inherit;
+    left:0;
+    bottom:0;
+  }
+  .btn-5:hover:before,
+  .btn-5:hover:after{
+    width:100%;
+    transition:800ms ease all;
+  }
   </style>
 </head>
 <body>
@@ -57,8 +108,10 @@
   <div id="child">
     <img id="kid" src="/static/images/downright.png" alt="здесь должна была быть картинка, но не нашлась">
   </div>
-  <div id="center">
-    <a href="http://127.0.0.1:8080/assor" id="childinner">СМОТРЕТЬ</a>
+  <div id="child">
+    <form>
+    <button formaction="http://127.0.0.1:8080/assor" class="custom-btn btn-5">СМОТРЕТЬ</button>
+    </form
   </div>
   </div>
 </body>
