@@ -18,6 +18,25 @@ def assor():
         sp.append([y[0], y[1]])
     return render_template('index1.html', sp=sp)
 
+@app.route('/kamen/<ston>', methods=['POST', 'GET'])
+def kamen(ston):
+    con = sqlite3.connect('imag.sqlite')
+    cur = con.cursor()
+    result = cur.execute("""SELECT img, opis, autor FROM img WHERE name == '""" + ston + "'").fetchall()
+    spis = []
+    buk = ''
+    for y in range(len(result[0][1])):
+        buk += result[0][1][y]
+        if y % 30 == 0 and y != 0:
+            spis.append(buk)
+            buk = ''
+    param = {}
+    param['kam'] = ston
+    param['image'] = result[0][0]
+    num = result[0][1][len(result[0][1]) // 30 * 30:]
+    spis.append(num)
+    return render_template('stone.html', **param, spis=spis)
+
 @app.route('/vhod', methods=['POST', 'GET'])
 def vhod():
     if request.method == 'GET':
@@ -322,3 +341,4 @@ def oshibka(ch):
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
+
