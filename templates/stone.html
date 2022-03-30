@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <link href="https://fonts.googleapis.com/css?family=Oranienbaum&display=swap" rel="stylesheet" />
+      <link href="{url_for('css', filename='main.css')}" type="text/css" rel="stylesheet" />
+      <title>Главная</title>
+      <style>
+      #mom {display: table;
+      width: 500px;}
+      #center {text-align: center;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;}
+      #cen {text-align: left ;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;}
+      #rig {text-align: right ;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;}
+      #lef {text-align: left ;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;}
+      #child {display: table-cell;}
+      #cchildinner {
+      	margin-top: 180px;
+      	margin-left: 220px;
+    	}
+   	 #ccchildinner {
+    	  margin-left: 100px;
+    	}
+      #chi {text-align: right;
+        font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum;
+        padding-left: 300px;
+        padding-bottom: 20px;}
+      #chi {margin-left: 30px;}
+	
+      </style>
+    </head>
+	<style>
+   	body {
+    	background: #306754 url("static/images/backgr.png");
+    	color: #fff;
+   	}
+  	</style>
+      <div id="center"><a href="http://127.0.0.1:8080/registr" id="childinner">Регистрация</a>
+      <a href="http://127.0.0.1:8080/vhod" id="childinner">Вход</a>
+      <div class="mom">
+      <div id="child">
+        <div id="chi">КАМЕННЫЙ</div>
+      </div>
+      <div id="child">
+        <img id="chi" src="/static/images/logo.png" alt="здесь должна была быть картинка, но не нашлась">
+      </div>
+      <div id="child">
+        <div id="chi">МИР</div>
+      </div>
+      </div>
+      <div class="mom">
+  	<div id="child">
+    	<img id="cchildinner" src="/static/images/{{image}}" alt="здесь должна была быть картинка, но не нашлась">
+ 	 </div>
+  	<div id="child">
+    	<img id="ccchildinner" src="/static/images/kod.png" alt="здесь должна была быть картинка, но не нашлась">
+  	</div>
+     </div>
+     {% for item in spis %}
+        <div id="lef">{{item}}</div>
+      {% endfor %}
+    </body>
+  </html>
