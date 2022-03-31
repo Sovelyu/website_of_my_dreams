@@ -48,6 +48,8 @@ def page():
         return obsidian()
 
 
+#вот тут короче регистрация но пока что она всех в базу добавляет надо вот сделать чтоб она не добавляла тех кто там уже есть
+#дааа вот если успею сегодня сделаю
 @app.route('/registr', methods=['POST', 'GET'])
 def register():
     form = RegistrationForm()
