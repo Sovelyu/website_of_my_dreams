@@ -1,4 +1,3 @@
-from flask import Flask as F
 from flask import *
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
 db = SQLAlchemy(app)
+is_reg = False
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -67,6 +67,7 @@ def kamen(ston):
     num = '<div id="lef">' + num + '</div>'
     spis.append(num)
     spis = '\n'.join(spis)
+    # Кнопка печати маленькая, потому что так задумано
     return f'''<!DOCTYPE html>
               <html lang="en">
                 <head>
@@ -76,6 +77,11 @@ def kamen(ston):
                   <title>''' + \
                   ston + \
                   '''</title>
+                    <script>
+                   function isEmail() {
+                   print()
+                   }
+                  </script>
                   <style>
                   #mom {display: table;
                   width: 500px;}
@@ -91,6 +97,10 @@ def kamen(ston):
                     font-size: 50px;
                     color: #2A084D;
                     font: Oranienbaum;}
+                  .test{text-align: right ;
+                    height:500px;
+                    width:500px;
+                    }
                   #lef {text-align: left ;
                     font-size: 50px;
                     color: #2A084D;
@@ -143,15 +153,19 @@ def kamen(ston):
                  '\n' + \
                  spis + \
                  '\n' + \
-                '''</body>
+                '''
+                <div id=rig><input type="button" value="Печать" onclick="isEmail()"></div>
+                </body>
               </html>'''
 
 #вот тут короче регистрация но пока что она всех в базу добавляет надо вот сделать чтоб она не добавляла тех кто там уже есть
 #дааа вот если успею сегодня сделаю
 @app.route('/registr', methods=['POST', 'GET'])
 def register():
+    global is_reg
     form = RegistrationForm()
     if form.validate_on_submit():
+        is_reg = True
         user = User(username =form.username.data, email = form.email.data)
         user.set_password(form.password1.data)
         db.session.add(user)
@@ -162,10 +176,12 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    global is_reg
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
         if user is not None and user.check_password(form.password.data):
+            is_reg = True
             login_user(user)
             next = request.args.get("next")
             return redirect(next or url_for('page'))
@@ -176,6 +192,8 @@ def login():
 @app.route("/logout")
 # @login_required
 def logout():
+    global is_reg
+    is_reg = True
     logout_user()
     return redirect(url_for('page'))
 
@@ -191,30 +209,77 @@ def assor():
     return render_template('index1.html', sp=sp)
 
 
-@app.route('/add_stone')
+@app.route('/add_stone', methods=['POST', 'GET'])
 def obsidian():
-    return '''<!doctype html>
-                <html lang="en">
-                  <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                    <link rel="stylesheet"
-                    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-                    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-                    crossorigin="anonymous">
-                    <title>Обсидиан</title>
-                  </head>
-                  <style>
-                    body {
-                    background: #306754 url("static/images/backgr.png");
-                    color: #fff;
-                    }
-                    </style>
-                    <div>СКОРО ЗДЕСЬ БУДЕТ ЗАГРУЗКА КАМНЕЙ, НО ЭТО УЖЕ ЗАВТРА</div>
-                    </body>
-                </html>'''
-
-
+    if is_reg:
+        # завтра сделаю добавление в бд
+        if request.method == 'GET':
+            return '''<!doctype html>
+                            <html lang="en">
+                              <head>
+                                <meta charset="utf-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                                <link rel="stylesheet"
+                                href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                                integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                                crossorigin="anonymous">
+                                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                                <title>Добавить камень</title>
+                              </head>
+                              <style>
+                                body {
+                                background: #306754 url("static/images/backgr.png");
+                                color: #fff;
+                                }
+                                </style>
+                                <h1>Анкета для камня</h1>
+                                <div>
+                                    <form class="login_form" method="post">
+                                        <div class="form-group">
+                                            <label for="about">Имя каня</label>
+                                            <textarea class="form-control" id="about" rows="3" name="name"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="about">Немного о камне</label>
+                                            <textarea class="form-control" id="about" rows="3" name="about"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="photo">Приложите фотографию</label>
+                                            <input type="file" id="photo" name="file">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Записаться</button>
+                                    </form>
+                                </div>
+                              </body>
+                            </html>'''
+        elif request.method == 'POST':
+            print(request.form['name'])
+            print(request.form['about'])
+            print(os.path.abspath(request.form['file']))
+            return "Форма отправлена"
+    else:
+        return '''<!doctype html>
+                    <html lang="en">
+                      <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                        <link rel="stylesheet"
+                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                        crossorigin="anonymous">
+                        <title>Вы не вошли в аккаунт!</title>
+                      </head>
+                      <style>
+                        body {
+                        background: #306754 url("static/images/backgr.png");
+                        color: #fff;
+                        }
+                        </style>
+                        <img src="/static/images/ohsi.png" alt="картинка не нашлась, но вы до сих пор не вошли в аккаунт">
+                        <h1><div>Вы не вошли в аккаунт. Пожалуйста, вернитесь на главную и войдите в аккаунт!</div></h1>
+                        </body>
+                    </html>'''
+    
 if __name__ == '__main__':
     #db_session.global_init("db/users.db")
     app.run(port=8080, host='127.0.0.1')
