@@ -35,12 +35,13 @@
     }
     </style>
       <div>
-        <a href="{{ url_for('page') }}">Home</a>
         {% if current_user.is_anonymous %}
         <a href="/registr" id="childinner">Регистрация/Вход</a>
         {% else %}
-        <p>Welcome {{current_user.username}}</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <p "font-size: 50px color: #2A084D font: Oranienbaum">{{current_user.username}}</p>
+        <a font-size: 50px;
+        color: #2A084D;
+        font: Oranienbaum; href="{{ url_for('logout') }}">Выйти</a>
         {% endif %}
       </div>
       <div class="mom">

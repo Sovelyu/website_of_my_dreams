@@ -21,23 +21,25 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-
 class User(UserMixin, db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  username = db.Column(db.String(50), index=True, unique=True)
-  email = db.Column(db.String(150), unique = True, index = True)
-  password_hash = db.Column(db.String(150))
-  joined_at = db.Column(db.DateTime(), default = datetime.utcnow, index = True)
+    __tablename__ = 'user'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), index=True, unique=True)
+    email = db.Column(db.String(150), unique = True, index = True)
+    password_hash = db.Column(db.String(150))
+    joined_at = db.Column(db.DateTime(), default = datetime.utcnow, index = True)
 
-  def set_password(self, password):
+    def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-  def check_password(self,password):
-      return check_password_hash(self.password_hash,password)
+    def check_password(self,password):
+        return check_password_hash(self.password_hash,password)
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.query.get(userid)
 
 
 @app.route('/home', methods=['POST', 'GET'])
@@ -47,6 +49,102 @@ def page():
     elif request.method == 'POST':
         return obsidian()
 
+
+@app.route('/kamen/<ston>', methods=['POST', 'GET'])
+def kamen(ston):
+    con = sqlite3.connect('db/site.db')
+    cur = con.cursor()
+    result = cur.execute("""SELECT img, opis, autor FROM img WHERE name == '""" + ston + "'").fetchall()
+    spis = []
+    buk = ''
+    for y in range(len(result[0][1])):
+        buk += result[0][1][y]
+        if y % 30 == 0 and y != 0:
+            buk = '<div id="lef">' + buk +'</div>'
+            spis.append(buk)
+            buk = ''
+    num = result[0][1][len(result[0][1]) // 30 * 30:]
+    num = '<div id="lef">' + num + '</div>'
+    spis.append(num)
+    spis = '\n'.join(spis)
+    return f'''<!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="utf-8">
+                  <link href="https://fonts.googleapis.com/css?family=Oranienbaum&display=swap" rel="stylesheet" />
+                  <link href="{url_for('assor', filename='main.css')}" type="text/css" rel="stylesheet" />
+                  <title>''' + \
+                  ston + \
+                  '''</title>
+                  <style>
+                  #mom {display: table;
+                  width: 500px;}
+                  #center {text-align: center;
+                    font-size: 50px;
+                    color: #2A084D;
+                    font: Oranienbaum;}
+                  #cen {text-align: left ;
+                    font-size: 50px;
+                    color: #2A084D;
+                    font: Oranienbaum;}
+                  #rig {text-align: right ;
+                    font-size: 50px;
+                    color: #2A084D;
+                    font: Oranienbaum;}
+                  #lef {text-align: left ;
+                    font-size: 50px;
+                    color: #2A084D;
+                    font: Oranienbaum;}
+                  #child {display: table-cell;}
+                  #cchildinner {
+                    margin-top: 180px;
+                    margin-left: 220px;
+                    }
+                     #ccchildinner {
+                      margin-left: 100px;
+                    }
+                  #chi {text-align: right;
+                    font-size: 50px;
+                    color: #2A084D;
+                    font: Oranienbaum;
+                    padding-left: 300px;
+                    padding-bottom: 20px;}
+                  #chi {margin-left: 30px;}
+
+                  </style>
+                </head>
+                    <style>
+                    body {
+                    background: #306754 url("static/images/backgr.png");
+                    color: #fff;
+                    }
+                    </style>
+                  <div class="mom">
+                  <div id="child">
+                    <div id="chi">КАМЕННЫЙ</div>
+                  </div>
+                  <div id="child">
+                    <img id="chi" src="/static/images/logo.png" alt="здесь должна была быть картинка, но не нашлась">
+                  </div>
+                  <div id="child">
+                    <div id="chi">МИР</div>
+                  </div>
+                  </div>
+                  <div class="mom">
+                    <div id="child">
+                    <img id="cchildinner" src="/static/images/''' + \
+                    result[0][0] + \
+                    '''" alt="здесь должна была быть картинка, но не нашлась">
+                     </div>
+                    <div id="child">
+                    <img id="ccchildinner" src="/static/images/kod.png" alt="здесь должна была быть картинка, но не нашлась">
+                    </div>
+                 </div> ''' + \
+                 '\n' + \
+                 spis + \
+                 '\n' + \
+                '''</body>
+              </html>'''
 
 #вот тут короче регистрация но пока что она всех в базу добавляет надо вот сделать чтоб она не добавляла тех кто там уже есть
 #дааа вот если успею сегодня сделаю
@@ -62,7 +160,7 @@ def register():
     return render_template('register.html', form=form)
 
 
-#@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -70,7 +168,7 @@ def login():
         if user is not None and user.check_password(form.password.data):
             login_user(user)
             next = request.args.get("next")
-            return redirect(next or url_for('home'))
+            return redirect(next or url_for('page'))
         flash('Invalid email address or Password.')
     return render_template('login.html', form=form)
 
@@ -84,7 +182,7 @@ def logout():
 # эта страница с ассортиментом камней
 @app.route('/assor', methods=['POST', 'GET'])
 def assor():
-    con = sqlite3.connect('db/db.db')
+    con = sqlite3.connect('db/site.db')
     cur = con.cursor()
     result = cur.execute("""SELECT name, img FROM img WHERE id > 0""").fetchall()
     sp = []
@@ -93,7 +191,7 @@ def assor():
     return render_template('index1.html', sp=sp)
 
 
-@app.route('/obsidian')
+@app.route('/add_stone')
 def obsidian():
     return '''<!doctype html>
                 <html lang="en">
@@ -106,9 +204,16 @@ def obsidian():
                     crossorigin="anonymous">
                     <title>Обсидиан</title>
                   </head>
-                  <body>
-                    <img src="/static/img/obsidian.png" alt="здесь должна была быть картинка, но не нашлась">                  </body>
+                  <style>
+                    body {
+                    background: #306754 url("static/images/backgr.png");
+                    color: #fff;
+                    }
+                    </style>
+                    <div>СКОРО ЗДЕСЬ БУДЕТ ЗАГРУЗКА КАМНЕЙ, НО ЭТО УЖЕ ЗАВТРА</div>
+                    </body>
                 </html>'''
+
 
 if __name__ == '__main__':
     #db_session.global_init("db/users.db")

@@ -13,16 +13,16 @@
         font: Oranienbaum;}
       </style>
     </head>
+    <body>
     <style>
     body {
       background-image: url("static/images/backgr.png")
     }
     </style>
-      <div id="center">ВСЕ КАМНИ</div>
-      {% for item in sp %}
-        <div id="center"><img src="/static/images/{{item[1]}}" alt="здесь должна была быть картинка, но не нашлась"></div>
-        <div id="center"><button style="height:100px;width:250px" value="{{item[0]}}">{{item[0]}}</button></div>
-      {% endfor %}
-    </body>
-  </html>
+    <div id="center">ВСЕ КАМНИ</div>
+    {% for item in sp %}
+      <div id="center"><img src="/static/images/{{item[1]}}" alt="здесь должна была быть картинка, но не нашлась"></div>
+      <div id="center"><a href="http://127.0.0.1:8080/kamen/{{item[0]}}" id="childinner">{{item[0]}}</a>
+    {% endfor %}
+  </body>
 {% endblock %}
