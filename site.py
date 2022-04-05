@@ -129,7 +129,7 @@ def kamen(ston):
                     </head>
                         <style>
                         body {
-                        background: #306754 url("static/images/backgr.png");
+                        background: #4B7460 url("static/images/backgr.png");
                         color: #fff;
                         }
                         </style>
@@ -255,34 +255,25 @@ def kamen(ston):
                     </body>
                   </html>'''
 
-#вот тут короче регистрация но пока что она всех в базу добавляет надо вот сделать чтоб она не добавляла тех кто там уже есть
-#дааа вот если успею сегодня сделаю
+
 @app.route('/registr', methods=['POST', 'GET'])
 def register():
-    global is_reg
-    global use
     form = RegistrationForm()
     if form.validate_on_submit():
-        is_reg = True
-        use = user
-        user = User(username =form.username.data, email = form.email.data)
+        user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password1.data)
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('page'))
+        return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    global is_reg
-    global use
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email = form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.check_password(form.password.data):
-            is_reg = True
-            use = user
             login_user(user)
             next = request.args.get("next")
             return redirect(next or url_for('page'))
@@ -378,6 +369,7 @@ def shut():
                         </html>'''
 
 @app.route('/add_stone', methods=['POST', 'GET'])
+@login_required
 def obsidian():
     if is_reg:
         if request.method == 'GET':
