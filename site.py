@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 SECRET_KEY = os.urandom(32)
 
 app = F(__name__)
@@ -426,6 +427,7 @@ def add_stageobsidian():
         name = request.form['name']
         opis = request.form['about']
         file = str(request.form['file'])
+        #os.replace("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
         if name and opis and file:
             cortej = (ids,
                       name,
