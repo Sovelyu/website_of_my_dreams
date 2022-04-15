@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 SECRET_KEY = os.urandom(32)
 
 app = F(__name__)
@@ -18,6 +19,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 db = SQLAlchemy(app)
 is_reg = False
 use = ''
+author = ''
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -124,7 +126,6 @@ def kamen(ston):
                         padding-left: 300px;
                         padding-bottom: 20px;}
                       #chi {margin-left: 30px;}
-
                       </style>
                     </head>
                         <style>
@@ -214,7 +215,6 @@ def kamen(ston):
                         padding-left: 300px;
                         padding-bottom: 20px;}
                       #chi {margin-left: 30px;}
-
                       </style>
                     </head>
                         <style>
@@ -261,6 +261,8 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
+        global author
+        author = form.username.data
         user.set_password(form.password1.data)
         db.session.add(user)
         db.session.commit()
@@ -273,6 +275,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        global author
+        author = user.username
         if user is not None and user.check_password(form.password.data):
             login_user(user)
             next = request.args.get("next")
@@ -367,6 +371,206 @@ def shut():
                             </h3>
                             </body>
                         </html>'''
+
+
+@app.route('/add_stone', methods=['POST', 'GET'])
+@login_required
+def add_stageobsidian():
+    if request.method == 'GET':
+        return '''<!doctype html>
+                            <html lang="en">
+                              <head>
+                                <meta charset="utf-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                                <link rel="stylesheet"
+                                href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                                integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                                crossorigin="anonymous">
+                                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                                <title>Добавить камень</title>
+                              </head>
+                              <style>
+                                body {
+                                background: #306754 url("/static/images/backgr.png");
+                                color: #fff;
+                                }
+                                </style>
+                                <h1>Анкета для камня</h1>
+                                <div>
+                                    <form class="login_form" method="post">
+                                        <div class="form-group">
+                                            <label for="about">Имя камня</label>
+                                            <textarea class="form-control" id="about" rows="3" name="name"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="about">Немного о камне</label>
+                                            <textarea class="form-control" id="about" rows="3" name="about"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="photo">Приложите фотографию</label>
+                                            <input type="file" id="photo" name="file">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Записать камень</button>
+                                    </form>
+                                </div>
+                              </body>
+                            </html>'''
+    elif request.method == 'POST':
+        con = sqlite3.connect('db/imag.sqlite')
+        cur = con.cursor()
+        result = cur.execute("""SELECT id FROM img WHERE id > 0""").fetchall()
+        sp = []
+        for y in result:
+            x = y[0]
+            sp.append(x)
+        ids = int(sp[-1]) + 1
+        name = request.form['name']
+        opis = request.form['about']
+        file = str(request.form['file'])
+        #os.replace("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
+        if name and opis and file:
+            cortej = (ids,
+                      name,
+                      file,
+                      opis,
+                      author)
+            cur.execute("""INSERT INTO img
+                    VALUES(?, ?, ?, ?, ?);""", cortej)
+            con.commit()
+            return '''<!doctype html>
+                    <html lang="en">
+                      <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                        <link rel="stylesheet"
+                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                            integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                        crossorigin="anonymous">
+                        <title>Камень успешно добавлен!</title>
+                      </head>
+                      <style>
+                      #mom {display: table;
+                                  width: 500px;}
+                                      #center {text-align: center;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  #cen {text-align: left ;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                        font: Oranienbaum;}
+                                  #rig {text-align: right ;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  .test{text-align: right ;
+                                    height:500px;
+                                    width:500px;
+                                    }
+                                  #lef {text-align: left ;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  #child {display: table-cell;}
+                                  #cchildinner {
+                                    margin-top: 180px;
+                                    margin-left: 220px;
+                                    }
+                                     #ccchildinner {
+                                          margin-left: 100px;
+                                    }
+                                  #chi {text-align: right;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;
+                                    padding-left: 300px;
+                                    padding-bottom: 20px;}
+                                      #chi {margin-left: 30px;}
+                        body {
+                        background: #306754 url("static/images/backgr.png");
+                        color: #fff;
+                        }
+                        </style>
+                        <img src="/static/images/molodec.jpg" alt="картинка не нашлась, но вы всё равно молодец">
+                        <h1>
+                        <div id="chi">Вы успешно добавлил камень!</div>
+                            </h1>
+                        <div id="cchildinner">
+                        <a href="http://127.0.0.1:8080/assor" id="chi">Вы можете увидеть его в ассортименте</a>
+                        </div>
+                        <div id="cchildinner">
+                        <a href="http://127.0.0.1:8080/kamen/''' + \
+                        name + \
+                            '''" id="chi">Или в его персональной странице</a>
+                        </div>
+                        </body>
+                    </html>'''
+        else:
+            return '''<!doctype html>
+                    <html lang="en">
+                      <head>
+                            <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                        <link rel="stylesheet"
+                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                        crossorigin="anonymous">
+                            <title>
+                            Неккоректные данные!
+                        </title>
+                      </head>
+                      <style>
+                      #mom {display: table;
+                                  width: 500px;}
+                                  #center {text-align: center;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  #cen {text-align: left ;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  #rig {text-align: right ;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  .test{text-align: right ;
+                                    height:500px;
+                                    width:500px;
+                                    }
+                                      #lef {text-align: left ;
+                                        font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;}
+                                  #child {display: table-cell;}
+                                      #cchildinner {
+                                        margin-top: 180px;
+                                    margin-left: 220px;
+                                    }
+                                     #ccchildinner {
+                                      margin-left: 100px;
+                                    }
+                                  #chi {text-align: right;
+                                    font-size: 50px;
+                                    color: #2A084D;
+                                    font: Oranienbaum;
+                                    padding-left: 300px;
+                                    padding-bottom: 20px;}
+                                  #chi {margin-left: 30px;}
+                        body {
+                        background: #306754 url("static/images/backgr.png");
+                        color: #fff;
+                        }
+                        </style>
+                        <img src="/static/images/ohsi.png" alt="картинка не нашлась, но данные до сих пор неккоректные!">
+                        <h1><div id=rig>Вы ввели неккоректные данные! Пожалуйста, вернитесь и перепроверьте: </div></h1>
+                        <h2><div id=lef>1.Ввели ли вы имя камня</div></h2>
+                        <h3><div id=rig>2.Ввели ли вы описание камня</div></h3>
+                        <h4><div id=rig>3.Выбрали ли вы файл</div></h4>
+                        <a href="http://127.0.0.1:8080/joke" id="chi">Вы не смогли добавить камень, хотя всё было правильно? напишите в техподдержку!</a>
+                        </body>
+                    </html>'''
+
 
 @app.route('/add_stone', methods=['POST', 'GET'])
 @login_required
