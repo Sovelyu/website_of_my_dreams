@@ -13,6 +13,11 @@ SECRET_KEY = os.urandom(32)
 
 app = F(__name__)
 
+UPLOAD_FOLDER = 'static/images/'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -134,6 +139,7 @@ def kamen(ston):
                         color: #fff;
                         }
                         </style>
+                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
                       <div class="mom">
                       <div id="child">
                         <div id="chi">КАМЕННЫЙ</div>
@@ -223,6 +229,7 @@ def kamen(ston):
                         color: #fff;
                         }
                         </style>
+                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
                       <div class="mom">
                       <div id="child">
                         <div id="chi">КАМЕННЫЙ</div>
@@ -304,6 +311,7 @@ def assor():
         sp.append([y[0], y[1]])
     return render_template('index1.html', sp=sp)
 
+
 @app.route('/joke', methods=['POST', 'GET'])
 def shut():
     return '''<!doctype html>
@@ -373,6 +381,10 @@ def shut():
                         </html>'''
 
 
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/add_stone', methods=['POST', 'GET'])
 @login_required
 def add_stageobsidian():
@@ -395,6 +407,7 @@ def add_stageobsidian():
                                 color: #fff;
                                 }
                                 </style>
+                                <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
                                 <h1>Анкета для камня</h1>
                                 <div>
                                     <form class="login_form" method="post">
@@ -426,7 +439,8 @@ def add_stageobsidian():
         ids = int(sp[-1]) + 1
         name = request.form['name']
         opis = request.form['about']
-        file = str(request.form['file'])
+        file = request.files['file']
+        print(file)
         #os.replace("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
         if name and opis and file:
             cortej = (ids,
@@ -491,6 +505,7 @@ def add_stageobsidian():
                         color: #fff;
                         }
                         </style>
+                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
                         <img src="/static/images/molodec.jpg" alt="картинка не нашлась, но вы всё равно молодец">
                         <h1>
                         <div id="chi">Вы успешно добавлил камень!</div>
@@ -562,6 +577,7 @@ def add_stageobsidian():
                         color: #fff;
                         }
                         </style>
+                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
                         <img src="/static/images/ohsi.png" alt="картинка не нашлась, но данные до сих пор неккоректные!">
                         <h1><div id=rig>Вы ввели неккоректные данные! Пожалуйста, вернитесь и перепроверьте: </div></h1>
                         <h2><div id=lef>1.Ввели ли вы имя камня</div></h2>
@@ -570,6 +586,12 @@ def add_stageobsidian():
                         <a href="http://127.0.0.1:8080/joke" id="chi">Вы не смогли добавить камень, хотя всё было правильно? напишите в техподдержку!</a>
                         </body>
                     </html>'''
+
+
+@app.route('/display_image/<filename>')
+def display_image(filename):
+	#print('display_image filename: ' + filename)
+	return redirect(url_for('static', filename='images/' + filename), code=301)
 
 
 if __name__ == '__main__':
