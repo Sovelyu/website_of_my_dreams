@@ -1,1 +1,1 @@
-web: python site.py
+web: qunicorn app:app
