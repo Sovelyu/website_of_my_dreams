@@ -1,4 +1,4 @@
-from flask import Flask as F
+om flask import Flask as F
 from flask import *
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +7,7 @@ import sqlite3
 from datetime import datetime
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+from waitress import serve
 
 
 SECRET_KEY = os.urandom(32)
@@ -381,13 +382,6 @@ def shut():
                         </html>'''
 
 
-<<<<<<< HEAD
-def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-=======
->>>>>>> 9ba3060c8b524f59cc60520d359df910538eac4a
 @app.route('/add_stone', methods=['POST', 'GET'])
 @login_required
 def add_stageobsidian():
@@ -442,12 +436,7 @@ def add_stageobsidian():
         ids = int(sp[-1]) + 1
         name = request.form['name']
         opis = request.form['about']
-<<<<<<< HEAD
-        file = request.files['file']
-        print(file)
-=======
         file = str(request.form['file'])
->>>>>>> 9ba3060c8b524f59cc60520d359df910538eac4a
         #os.replace("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
         if name and opis and file:
             cortej = (ids,
@@ -512,10 +501,7 @@ def add_stageobsidian():
                         color: #fff;
                         }
                         </style>
-<<<<<<< HEAD
                         <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
-=======
->>>>>>> 9ba3060c8b524f59cc60520d359df910538eac4a
                         <img src="/static/images/molodec.jpg" alt="картинка не нашлась, но вы всё равно молодец">
                         <h1>
                         <div id="chi">Вы успешно добавлил камень!</div>
@@ -587,10 +573,7 @@ def add_stageobsidian():
                         color: #fff;
                         }
                         </style>
-<<<<<<< HEAD
                         <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
-=======
->>>>>>> 9ba3060c8b524f59cc60520d359df910538eac4a
                         <img src="/static/images/ohsi.png" alt="картинка не нашлась, но данные до сих пор неккоректные!">
                         <h1><div id=rig>Вы ввели неккоректные данные! Пожалуйста, вернитесь и перепроверьте: </div></h1>
                         <h2><div id=lef>1.Ввели ли вы имя камня</div></h2>
@@ -600,17 +583,7 @@ def add_stageobsidian():
                         </body>
                     </html>'''
 
-<<<<<<< HEAD
 
-@app.route('/display_image/<filename>')
-def display_image(filename):
-	#print('display_image filename: ' + filename)
-	return redirect(url_for('static', filename='images/' + filename), code=301)
-
-
-=======
-    
->>>>>>> 9ba3060c8b524f59cc60520d359df910538eac4a
 if __name__ == '__main__':
-    #db_session.global_init("db/users.db")
-    app.run(port=8080, host='127.0.0.1')
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
