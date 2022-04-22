@@ -23,7 +23,7 @@
     <div id="center">ВСЕ КАМНИ</div>
     {% for item in sp %}
       <div id="center"><img src="/static/images/{{item[1]}}" alt="здесь должна была быть картинка, но не нашлась"></div>
-      <div id="center"><a href="/kamen/{{item[0]}})" id="childinner">{{item[0]}}</a>
+      <div id="center"><a href="http://192.168.1.11:5000/kamen/{{item[0]}})" id="childinner">{{item[0]}}</a>
     {% endfor %}
   </body>
 {% endblock %}
