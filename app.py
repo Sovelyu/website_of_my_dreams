@@ -52,6 +52,11 @@ def load_user(userid):
     return User.query.get(userid)
 
 
+@app.route('/', methods=['POST', 'GET'])
+def home():
+    return page()
+
+
 @app.route('/home', methods=['POST', 'GET'])
 def page():
     if request.method == 'GET':
