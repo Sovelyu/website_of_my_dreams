@@ -1,0 +1,64 @@
+<!doctype html>
+<title>Добавить камень</title>
+<h1>Анкета для камня</h1>
+<style>
+                      #mom {display: table;
+                      width: 500px;}
+                      #center {text-align: center;
+                        font-size: 50px;
+                        color: #2A084D;
+                        font: Oranienbaum;}
+                      #cen {text-align: left ;
+                        font-size: 50px;
+                        color: #2A084D;
+                        font: Oranienbaum;}
+                      #rig {text-align: right ;
+                        font-size: 50px;
+                        color: #2A084D;
+                        font: Oranienbaum;}
+                      .test{text-align: right ;
+                        height:500px;
+                        width:500px;
+                        }
+                      #lef {text-align: left ;
+                        font-size: 50px;
+                        color: #2A084D;
+                        font: Oranienbaum;}
+                      #child {display: table-cell;}
+                      #cchildinner {
+                        margin-top: 180px;
+                        margin-left: 220px;
+                        }
+                         #ccchildinner {
+                          margin-left: 100px;
+                        }
+                      #chi {text-align: right;
+                        font-size: 50px;
+                        color: #2A084D;
+                        font: Oranienbaum;
+                        padding-left: 300px;
+                        padding-bottom: 20px;}
+                      #chi {margin-left: 30px;}
+body {
+  background-image: url("static/images/backgr.png")
+}
+</style>
+<form method="post" action="/" enctype="multipart/form-data">
+    <dl>
+		<p>
+	    		<label for="username" id='center'>Имя камня</label>
+	    		<input type="text" name="stonename">
+		</p>
+		<p>
+			<label for="about" id='center'>Немного о камне</label>
+                        <textarea class="form-control" id="about" rows="3" name="about"></textarea>
+		</p>
+		<p>
+			<label for="file" id='center'>Приложите фотографию</label>
+			<input type="file" name="file" autocomplete="off" required>
+		</p>
+    </dl>
+    <p>
+		<input type="submit" value="Добавить">
+	</p>
+</form>
