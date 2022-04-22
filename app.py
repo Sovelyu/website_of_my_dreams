@@ -1,4 +1,4 @@
-om flask import Flask as F
+from flask import Flask as F
 from flask import *
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
