@@ -6,6 +6,7 @@ from forms import RegistrationForm, LoginForm
 import sqlite3
 from datetime import datetime
 import os
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from waitress import serve
 
@@ -22,6 +23,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
+app.secret_key = "secret key"
 db = SQLAlchemy(app)
 is_reg = False
 use = ''
@@ -30,6 +32,8 @@ author = ''
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -52,11 +56,6 @@ def load_user(userid):
     return User.query.get(userid)
 
 
-@app.route('/', methods=['POST', 'GET'])
-def home():
-    return page()
-
-
 @app.route('/home', methods=['POST', 'GET'])
 def page():
     if request.method == 'GET':
@@ -67,6 +66,7 @@ def page():
 
 @app.route('/kamen/<ston>', methods=['POST', 'GET'])
 def kamen(ston):
+    ston = ston[:-1]
     con = sqlite3.connect('db/imag.sqlite')
     cur = con.cursor()
     result = cur.execute("""SELECT img, opis, autor FROM img WHERE name == '""" + ston + """'""").fetchall()
@@ -387,206 +387,172 @@ def shut():
                         </html>'''
 
 
-@app.route('/add_stone', methods=['POST', 'GET'])
-@login_required
-def add_stageobsidian():
-    if request.method == 'GET':
-        return '''<!doctype html>
+@app.route('/', methods=['POST', 'GET'])
+def upload_image():
+        if request.method == 'GET':
+                return render_template('upload.html')
+        elif request.method == 'POST':
+                name = request.form.get('stonename')
+                about = request.form.get('about')
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                        filename = secure_filename(file.filename)
+                        con = sqlite3.connect('db/imag.sqlite')
+                        cur = con.cursor()
+                        result = cur.execute("""SELECT id FROM img WHERE id > 0""").fetchall()
+                        sp = []
+                        for y in result:
+                            x = y[0]
+                            sp.append(x)
+                        ids = int(sp[-1]) + 1
+                        name = name
+                        opis = about
+                        f = filename
+                        if name and opis:
+                            cortej = (ids,
+                                      name,
+                                      f,
+                                      opis,
+                                      author)
+                            cur.execute("""INSERT INTO img
+                                    VALUES(?,
+                                    ?,
+                                    ?,
+                                    ?,
+                                    ?);""", cortej)
+                            con.commit()
+                            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                            return '''<!doctype html>
                             <html lang="en">
                               <head>
                                 <meta charset="utf-8">
                                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                                 <link rel="stylesheet"
                                 href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-                                integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                                    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
                                 crossorigin="anonymous">
-                                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
-                                <title>Добавить камень</title>
+                                <title>Камень успешно добавлен!</title>
                               </head>
                               <style>
+                              #mom {display: table;
+                                          width: 500px;}
+                                              #center {text-align: center;
+                                            font-size: 50px;
+                                            color: #2A084D;
+                                            font: Oranienbaum;}
+                                          #cen {text-align: left ;
+                                            font-size: 50px;
+                                            color: #2A084D;
+                                                font: Oranienbaum;}
+                                          #rig {text-align: right ;
+                                            font-size: 50px;
+                                            color: #2A084D;
+                                            font: Oranienbaum;}
+                                          .test{text-align: right ;
+                                            height:500px;
+                                            width:500px;
+                                            }
+                                          #lef {text-align: left ;
+                                            font-size: 50px;
+                                            color: #2A084D;
+                                            font: Oranienbaum;}
+                                          #child {display: table-cell;}
+                                          #cchildinner {
+                                            margin-top: 180px;
+                                            margin-left: 220px;
+                                            }
+                                             #ccchildinner {
+                                                  margin-left: 100px;
+                                            }
+                                          #chi {text-align: right;
+                                            font-size: 50px;
+                                            color: #2A084D;
+                                            font: Oranienbaum;
+                                            padding-left: 300px;
+                                            padding-bottom: 20px;}
+                                              #chi {margin-left: 30px;}
                                 body {
-                                background: #306754 url("/static/images/backgr.png");
+                                background: #306754 url("static/images/backgr.png");
                                 color: #fff;
                                 }
                                 </style>
                                 <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
-                                <h1>Анкета для камня</h1>
-                                <div>
-                                    <form class="login_form" method="post">
-                                        <div class="form-group">
-                                            <label for="about">Имя камня</label>
-                                            <textarea class="form-control" id="about" rows="3" name="name"></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="about">Немного о камне</label>
-                                            <textarea class="form-control" id="about" rows="3" name="about"></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="photo">Приложите фотографию</label>
-                                            <input type="file" id="photo" name="file">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Записать камень</button>
-                                    </form>
-                                </div>
-                              </body>
+                                <img src="/static/images/molodec.jpg" alt="картинка не нашлась, но вы всё равно молодец">
+                                <h1>
+                                <div id="chi">Вы успешно добавлил камень!</div>
+                                    </h1>
+                                </body>
                             </html>'''
-    elif request.method == 'POST':
-        con = sqlite3.connect('db/imag.sqlite')
-        cur = con.cursor()
-        result = cur.execute("""SELECT id FROM img WHERE id > 0""").fetchall()
-        sp = []
-        for y in result:
-            x = y[0]
-            sp.append(x)
-        ids = int(sp[-1]) + 1
-        name = request.form['name']
-        opis = request.form['about']
-        file = str(request.form['file'])
-        #os.replace("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
-        if name and opis and file:
-            cortej = (ids,
-                      name,
-                      file,
-                      opis,
-                      author)
-            cur.execute("""INSERT INTO img
-                    VALUES(?, ?, ?, ?, ?);""", cortej)
-            con.commit()
-            return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                        <link rel="stylesheet"
-                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-                            integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-                        crossorigin="anonymous">
-                        <title>Камень успешно добавлен!</title>
-                      </head>
-                      <style>
-                      #mom {display: table;
-                                  width: 500px;}
-                                      #center {text-align: center;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  #cen {text-align: left ;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                        font: Oranienbaum;}
-                                  #rig {text-align: right ;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  .test{text-align: right ;
-                                    height:500px;
-                                    width:500px;
-                                    }
-                                  #lef {text-align: left ;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  #child {display: table-cell;}
-                                  #cchildinner {
-                                    margin-top: 180px;
-                                    margin-left: 220px;
-                                    }
-                                     #ccchildinner {
-                                          margin-left: 100px;
-                                    }
-                                  #chi {text-align: right;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;
-                                    padding-left: 300px;
-                                    padding-bottom: 20px;}
-                                      #chi {margin-left: 30px;}
-                        body {
-                        background: #306754 url("static/images/backgr.png");
-                        color: #fff;
-                        }
-                        </style>
-                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
-                        <img src="/static/images/molodec.jpg" alt="картинка не нашлась, но вы всё равно молодец">
-                        <h1>
-                        <div id="chi">Вы успешно добавлил камень!</div>
-                            </h1>
-                        <div id="cchildinner">
-                        <a href="http://127.0.0.1:8080/assor" id="chi">Вы можете увидеть его в ассортименте</a>
-                        </div>
-                        <div id="cchildinner">
-                        <a href="http://127.0.0.1:8080/kamen/''' + \
-                        name + \
-                            '''" id="chi">Или в его персональной странице</a>
-                        </div>
-                        </body>
-                    </html>'''
-        else:
-            return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                            <meta charset="utf-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                        <link rel="stylesheet"
-                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-                        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-                        crossorigin="anonymous">
-                            <title>
-                            Неккоректные данные!
-                        </title>
-                      </head>
-                      <style>
-                      #mom {display: table;
-                                  width: 500px;}
-                                  #center {text-align: center;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  #cen {text-align: left ;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  #rig {text-align: right ;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  .test{text-align: right ;
-                                    height:500px;
-                                    width:500px;
-                                    }
-                                      #lef {text-align: left ;
-                                        font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;}
-                                  #child {display: table-cell;}
-                                      #cchildinner {
-                                        margin-top: 180px;
-                                    margin-left: 220px;
-                                    }
-                                     #ccchildinner {
-                                      margin-left: 100px;
-                                    }
-                                  #chi {text-align: right;
-                                    font-size: 50px;
-                                    color: #2A084D;
-                                    font: Oranienbaum;
-                                    padding-left: 300px;
-                                    padding-bottom: 20px;}
-                                  #chi {margin-left: 30px;}
-                        body {
-                        background: #306754 url("static/images/backgr.png");
-                        color: #fff;
-                        }
-                        </style>
-                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
-                        <img src="/static/images/ohsi.png" alt="картинка не нашлась, но данные до сих пор неккоректные!">
-                        <h1><div id=rig>Вы ввели неккоректные данные! Пожалуйста, вернитесь и перепроверьте: </div></h1>
-                        <h2><div id=lef>1.Ввели ли вы имя камня</div></h2>
-                        <h3><div id=rig>2.Ввели ли вы описание камня</div></h3>
-                        <h4><div id=rig>3.Выбрали ли вы файл</div></h4>
-                        <a href="http://127.0.0.1:8080/joke" id="chi">Вы не смогли добавить камень, хотя всё было правильно? напишите в техподдержку!</a>
-                        </body>
-                    </html>'''
+                        else:
+                            return '''<!doctype html>
+                                    <html lang="en">
+                                      <head>
+                                            <meta charset="utf-8">
+                                        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                                        <link rel="stylesheet"
+                                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                                        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                                        crossorigin="anonymous">
+                                            <title>
+                                            Неккоректные данные!
+                                        </title>
+                                      </head>
+                                      <style>
+                                      #mom {display: table;
+                                                  width: 500px;}
+                                                  #center {text-align: center;
+                                                    font-size: 50px;
+                                                    color: #2A084D;
+                                                    font: Oranienbaum;}
+                                                  #cen {text-align: left ;
+                                                    font-size: 50px;
+                                                    color: #2A084D;
+                                                    font: Oranienbaum;}
+                                                  #rig {text-align: right ;
+                                                    font-size: 50px;
+                                                    color: #2A084D;
+                                                    font: Oranienbaum;}
+                                                  .test{text-align: right ;
+                                                    height:500px;
+                                                    width:500px;
+                                                    }
+                                                      #lef {text-align: left ;
+                                                        font-size: 50px;
+                                                    color: #2A084D;
+                                                    font: Oranienbaum;}
+                                                  #child {display: table-cell;}
+                                                      #cchildinner {
+                                                        margin-top: 180px;
+                                                    margin-left: 220px;
+                                                    }
+                                                     #ccchildinner {
+                                                      margin-left: 100px;
+                                                    }
+                                                  #chi {text-align: right;
+                                                    font-size: 50px;
+                                                    color: #2A084D;
+                                                    font: Oranienbaum;
+                                                    padding-left: 300px;
+                                                    padding-bottom: 20px;}
+                                                  #chi {margin-left: 30px;}
+                                        body {
+                                        background: #306754 url("static/images/backgr.png");
+                                        color: #fff;
+                                        }
+                                        </style>
+                                        <a href="/home" id="childinner">НА ГЛАВНУЮ</a>
+                                        <img src="/static/images/ohsi.png" alt="картинка не нашлась, но данные до сих пор неккоректные!">
+                                        <h1><div id=rig>Вы ввели неккоректные данные! Пожалуйста, вернитесь и перепроверьте: </div></h1>
+                                        <h2><div id=lef>1.Ввели ли вы имя камня</div></h2>
+                                        <h3><div id=rig>2.Ввели ли вы описание камня</div></h3>
+                                        <h4><div id=rig>3.Выбрали ли вы файл</div></h4>
+                                        <a href="http://127.0.0.1:5000/joke" id="chi">Вы не смогли добавить камень, хотя всё было правильно? напишите в техподдержку!</a>
+                                        </body>
+                                    </html>'''
+
+@app.route('/display_image/<filename>')
+def display_image(filename):
+	return redirect(url_for('static', filename='images/' + filename), code=301)
 
 
 if __name__ == '__main__':
